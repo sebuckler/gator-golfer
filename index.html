@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Gator Golfer</title>
+        <link href="index.css" rel="stylesheet" />
+    </head>
+    <body>
+        <img id="teePad" src="assets/teepad.png" alt="tee pad image" />
+        <img id="golfBall" src="assets/golfball.png" alt="ball image" />
+        <img id="hole" src="assets/hole.png" alt="hole image" />
+        <img id="block" src="assets/block.png" alt="block image" />
+
+        <canvas id="gameScreen" height="832" width="960"></canvas>
+
+        <main>
+            <figure>
+                <figcaption>Music</figcaption>
+                <audio controls src="assets/gator-golfer.wav"></audio>
+            </figure>
+
+            <p>Controls</p>
+
+            <dl>
+                <dt><code>Spacebar</code></dt>
+                <dd>putt the golf ball</dd>
+
+                <dt><code>Enter</code></dt>
+                <dd>start game or reset level after complete</dd>
+            </dl>
+        </main>
+
+        <script src="index.js" type="module"></script>
+    </body>
+</html>
