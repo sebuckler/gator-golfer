@@ -30,7 +30,7 @@ export function reflectVector(v1, v2) {
     const ny = v2.x;
 
     if (v1.x / v1.y === nx / ny) {
-        return {x: -v2.y, y: v2.x};
+        return {x: -v1.x, y: -v1.y};
     }
 
     return {x: -v1.y, y: v1.x};

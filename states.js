@@ -51,12 +51,15 @@ const states = {
             });
         },
         render() {
-            const {ball, blocks, hole, teePad} = this.level;
+            const {ball, blocks, hole, teePad, tiles} = this.level;
 
             ctx.fillStyle = "#0c0";
             ctx.fillRect(0, 0, game.width, game.height);
             ball.update();
 
+            tiles.forEach(tile => {
+                tile.draw(ctx);
+            });
             blocks.forEach(block => {
                 block.draw(ctx);
 
@@ -99,6 +102,9 @@ const states = {
             ctx.fillStyle = "#0c0";
             ctx.fillRect(0, 0, game.width, game.height);
 
+            this.level.tiles.forEach(tile => {
+                tile.draw(ctx);
+            });
             this.level.blocks.forEach(block => {
                 block.draw(ctx);
             });
@@ -142,6 +148,9 @@ const states = {
             this.level.hole.draw(ctx);
             this.level.teePad.draw(ctx);
 
+            this.level.tiles.forEach(tile => {
+                tile.draw(ctx);
+            });
             this.level.blocks.forEach(block => {
                 block.draw(ctx);
             });
