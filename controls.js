@@ -10,6 +10,7 @@ let handlers = {};
 document.addEventListener("keydown", (ev) => {
     if (handlers[ev.code] != null) {
         handlers[ev.code]();
+        ev.preventDefault();
     }
 });
 

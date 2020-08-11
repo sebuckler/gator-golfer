@@ -1,4 +1,10 @@
-import {detectBallHitBlock, detectBallHitWall, detectBallInHole, reflectVector} from "./collisions.js";
+import {
+    detectBallHitBlock,
+    detectBallHitTile,
+    detectBallHitWall,
+    detectBallInHole,
+    reflectVector
+} from "./collisions.js";
 import {handleControls, resetControls} from "./controls.js";
 import {buildLevel, levels} from "./levels.js";
 
@@ -41,6 +47,20 @@ const states = {
                 esc: () => {
                     transition(states.pause, {level: this.level});
                 },
+                left: () => {
+                    if (this.level.ball.speed !== 0) {
+                        return;
+                    }
+
+                    this.level.ball.move({speed: 7, x: -1, y: 1});
+                },
+                right: () => {
+                    if (this.level.ball.speed !== 0) {
+                        return;
+                    }
+
+                    this.level.ball.move({speed: 7, x: 1, y: 1});
+                },
                 space: () => {
                     if (this.level.ball.speed !== 0) {
                         return;
@@ -59,12 +79,16 @@ const states = {
 
             tiles.forEach(tile => {
                 tile.draw(ctx);
+
+                if (detectBallHitTile(ball, tile)) {
+                    ball.move({speed: 6, x: -ball.vector.x, y: -ball.vector.y});
+                }
             });
             blocks.forEach(block => {
                 block.draw(ctx);
 
                 if (detectBallHitBlock(ball, block)) {
-                    const {x, y} = reflectVector(ball.vector, block.vector);
+                    const {x, y} = reflectVector(ball.vector, block.rotation);
 
                     ball.move({speed: 6, x, y});
                 }
@@ -74,10 +98,10 @@ const states = {
 
             ball.draw(ctx);
 
-            const [wallHit, wallVector] = detectBallHitWall(ball, game);
+            const [wallHit, wallRot] = detectBallHitWall(ball, game);
 
             if (wallHit) {
-                const {x, y} = reflectVector(ball.vector, wallVector);
+                const {x, y} = reflectVector(ball.vector, wallRot);
 
                 ball.move({speed: 6, x, y});
             }

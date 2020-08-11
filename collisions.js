@@ -1,44 +1,148 @@
 export function detectBallHitWall(ball, game) {
-    if (ball.position.x + ball.size >= game.width || ball.position.x <= 0) {
-        return [true, {x: 0, y: 1}];
+    if (ball.position.x + ball.width >= game.width || ball.position.x <= 0) {
+        return [true, 90];
     }
 
-    if (ball.position.y + ball.size >= game.height || ball.position.y <= 0) {
-        return [true, {x: 1, y: 0}];
+    if (ball.position.y + ball.width >= game.height || ball.position.y <= 0) {
+        return [true, 0];
     }
 
     return [false, null];
 }
 
 export function detectBallInHole(ball, hole) {
-    const ballRadius = ball.size / 2;
-    const ballEdgeX = ball.position.x + ballRadius;
-    const ballEdgeY = ball.position.y + ballRadius;
+    const bRad = ball.size / 2;
 
-    return ballEdgeX >= hole.position.x && ballEdgeX <= hole.position.x + hole.size
-        && ballEdgeY <= hole.position.y + hole.size && ballEdgeY >= hole.position.y;
+    return ball.position.x + bRad >= hole.position.x && ball.position.x + bRad <= hole.position.x + hole.size
+        && ball.position.y + bRad <= hole.position.y + hole.size && ball.position.y + bRad >= hole.position.y;
+}
+
+export function detectBallHitTile(ball, tile) {
+    const distX = Math.abs(ball.center.x - tile.center.x);
+    const distY = Math.abs(ball.center.y - tile.center.y);
+
+    return isBallMovingToObject(ball, tile) && Math.sqrt(distX * distX + distY * distY) <= ball.size;
 }
 
 export function detectBallHitBlock(ball, block) {
-    return isBallMovingToBlock(ball, block)
-        && ball.position.x + ball.size >= block.position.x && ball.position.x <= block.position.x + block.width
-        && ball.position.y <= block.position.y + block.height && ball.position.y + ball.size >= block.position.y;
-}
-
-export function reflectVector(v1, v2) {
-    const nx = -v2.y;
-    const ny = v2.x;
-
-    if (v1.x / v1.y === nx / ny) {
-        return {x: -v1.x, y: -v1.y};
+    if (ball.speed === 0 || !isBallMovingToObject(ball, block)) {
+        return false;
     }
 
-    return {x: -v1.y, y: v1.x};
+    const vm = ball.vector.y / ball.vector.x;
+    const nm = block.normal.y / block.normal.x;
+
+    if ((!isFinite(vm) && !isFinite(nm)) || vm === nm) {
+        return detectHeadOn(ball, block);
+    }
+
+    return detectCorner(ball, block);
 }
 
-function isBallMovingToBlock(ball, block) {
-    return ball.vector.x > 0 && block.position.x > ball.position.x
-        || ball.vector.x < 0 && block.position.x < ball.position.x
-        || ball.vector.y > 0 && block.position.y < ball.position.y
-        || ball.vector.y < 0 && block.position.y > ball.position.y;
+export function reflectVector(vec, rot) {
+    if (vec.x === 0 && vec.y > 0 || vec.x === 0 && vec.y < 0) {
+        return reflectVertical(vec, rot);
+    }
+
+    if (vec.x > 0 && vec.y === 0 || vec.x < 0 && vec.y === 0) {
+        return reflectHorizontal(vec, rot);
+    }
+
+    if (vec.x > 0 && vec.y > 0 || vec.x < 0 && vec.y < 0 || vec.x > 0 && vec.y < 0 || vec.x < 0 && vec.y > 0) {
+        return reflectDiagonal(vec, rot);
+    }
+
+    return vec;
+}
+
+function detectHeadOn(ball, block) {
+    return Math.abs(ball.center.x - block.center.x) <= ball.width / 2 + block.height / 2
+        && Math.abs(ball.center.y - block.center.y) <= ball.width / 2 + block.height / 2;
+}
+
+function detectCorner(ball, block) {
+    const offset = block.size / 4;
+
+    if (ball.vector.x === 0 && ball.vector.y > 0 || ball.vector.x === 0 && ball.vector.y < 0
+        || ball.vector.x > 0 && ball.vector.y === 0 || ball.vector.x < 0 && ball.vector.y === 0) {
+        return ball.center.x >= block.position.x && ball.center.x <= block.position.x + block.size
+            && ball.center.y >= block.position.y - offset && ball.center.y <= block.position.y - offset + block.size;
+    }
+
+    if (ball.vector.x > 0 && ball.vector.y > 0 || ball.vector.x < 0 && ball.vector.y < 0
+        || ball.vector.x > 0 && ball.vector.y < 0 || ball.vector.x < 0 && ball.vector.y > 0) {
+        return Math.abs(ball.center.x - block.center.x) <= ball.width / 2 + block.height / 2
+            && Math.abs(ball.center.y - block.center.y) <= ball.width / 2 + block.height / 2;
+    }
+}
+
+function reflectVertical(vec, rot) {
+    switch (rot) {
+        case 0:
+        case 90:
+            return {x: vec.x, y: -vec.y};
+        case 45:
+            return {x: -vec.y, y: vec.x};
+        case 135:
+            return {x: vec.y, y: vec.x};
+    }
+}
+
+function reflectHorizontal(vec, rot) {
+    switch (rot) {
+        case 0:
+        case 90:
+            return {x: -vec.x, y: vec.y};
+        case 45:
+        case 135:
+            return {x: vec.y, y: vec.x};
+    }
+}
+
+function reflectDiagonal(vec, rot) {
+    switch (rot) {
+        case 0:
+            return {x: vec.x, y: -vec.y};
+        case 45:
+        case 135:
+            return {x: -vec.x, y: -vec.y};
+        case 90:
+            return {x: -vec.x, y: vec.y};
+    }
+}
+
+function isBallMovingToObject(ball, obj) {
+    if (ball.vector.x === 0 && ball.vector.y > 0) {
+        return ball.center.y >= obj.center.y;
+    }
+
+    if (ball.vector.x === 0 && ball.vector.y < 0) {
+        return ball.center.y <= obj.center.y;
+    }
+
+    if (ball.vector.x < 0 && ball.vector.y === 0) {
+        return ball.center.x >= obj.center.x;
+    }
+
+    if (ball.vector.x > 0 && ball.vector.y === 0) {
+        return ball.center.x <= obj.center.x;
+    }
+
+    if (ball.vector.x < 0 && ball.vector.y > 0) {
+        return ball.center.x >= obj.center.x || ball.center.y >= obj.center.y;
+    }
+
+    if (ball.vector.x > 0 && ball.vector.y > 0) {
+        return ball.center.y >= obj.center.y || ball.center.x <= obj.center.x;
+    }
+
+    if (ball.vector.x < 0 && ball.vector.y < 0) {
+        return ball.center.y <= obj.center.y || ball.center.x >= obj.center.x;
+    }
+
+    if (ball.vector.x > 0 && ball.vector.y < 0) {
+        return ball.center.y <= obj.center.y || ball.center.x <= obj.center.x;
+    }
+
+    return false;
 }

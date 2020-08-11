@@ -3,8 +3,8 @@ export class Hole {
         this.size = game.gridUnit * .75;
         this.image = document.getElementById("hole");
         this.position = {
-            x: pos[0],
-            y: pos[1],
+            x: pos[0] + (game.gridUnit - this.size) / 2,
+            y: pos[1] + (game.gridUnit - this.size) / 2,
         };
     }
 
