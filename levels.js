@@ -21,6 +21,7 @@ export const levels = [
             [0, 0, 0, 0, 0, 0, "|", 1, "|", 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, "|", "t", "|", 0, 0, 0, 0, 0, 0],
         ],
+        maxBounce: 1,
         name: "Hole 1",
     },
     {
@@ -39,6 +40,7 @@ export const levels = [
             [0, 0, 0, 0, 0, 0, "|", 1, "|", 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, "|", "t", "|", 0, 0, 0, 0, 0, 0],
         ],
+        maxBounce: 3,
         name: "Hole 2",
     },
     {
@@ -62,10 +64,11 @@ export const levels = [
 ];
 
 export function buildLevel(n, game) {
-    const {field, name} = levels[n];
+    const {field, maxBounce, name} = levels[n];
     const level = {
         blocks: [],
         index: n,
+        maxBounce,
         name,
         tiles: [],
     };

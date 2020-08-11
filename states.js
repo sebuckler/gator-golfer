@@ -37,10 +37,12 @@ const states = {
         },
     },
     playing: {
+        bounces: 0,
         level: {},
         load(data) {
             if (data.prev !== "pause") {
                 this.level = data.level;
+                this.bounces = 0;
             }
 
             handleControls({
@@ -82,6 +84,7 @@ const states = {
 
                 if (detectBallHitTile(ball, tile)) {
                     ball.move({speed: 6, x: -ball.vector.x, y: -ball.vector.y});
+                    this.bounces += 1;
                 }
             });
             blocks.forEach(block => {
@@ -91,6 +94,7 @@ const states = {
                     const {x, y} = reflectVector(ball.vector, block.rotation);
 
                     ball.move({speed: 6, x, y});
+                    this.bounces += 1;
                 }
             });
             hole.draw(ctx);
@@ -104,10 +108,15 @@ const states = {
                 const {x, y} = reflectVector(ball.vector, wallRot);
 
                 ball.move({speed: 6, x, y});
+                this.bounces += 1;
             }
 
             if (detectBallInHole(ball, hole)) {
                 transition(states.levelComplete, {level: this.level});
+            }
+
+            if (this.bounces > this.level.maxBounce) {
+                ball.speed = 0;
             }
         },
     },
