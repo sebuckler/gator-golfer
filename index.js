@@ -4,11 +4,14 @@ const ctx = document.getElementById("gameScreen").getContext("2d");
 const game = {
     gridUnit: 64,
     height: 13 * 64,
+    time: 0,
     width: 15 * 64,
 };
 const machine = new StateMachine(game);
 
-function main() {
+function main(timestamp) {
+    game.time = timestamp;
+
     machine.render(ctx);
     requestAnimationFrame(main);
 }
