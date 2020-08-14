@@ -40,15 +40,15 @@ export function detectBallHitBlock(ball, block) {
 }
 
 export function reflectVector(vec, rot) {
-    if (vec.x === 0 && vec.y > 0 || vec.x === 0 && vec.y < 0) {
+    if (vec.x === 0 && (vec.y > 0 || vec.y < 0)) {
         return reflectVertical(vec, rot);
     }
 
-    if (vec.x > 0 && vec.y === 0 || vec.x < 0 && vec.y === 0) {
+    if ((vec.x > 0 || vec.x < 0) && vec.y === 0) {
         return reflectHorizontal(vec, rot);
     }
 
-    if (vec.x > 0 && vec.y > 0 || vec.x < 0 && vec.y < 0 || vec.x > 0 && vec.y < 0 || vec.x < 0 && vec.y > 0) {
+    if (vec.x !== 0 && vec.y !== 0) {
         return reflectDiagonal(vec, rot);
     }
 
@@ -63,14 +63,13 @@ function detectHeadOn(ball, block) {
 function detectCorner(ball, block) {
     const offset = block.size / 4;
 
-    if (ball.vector.x === 0 && ball.vector.y > 0 || ball.vector.x === 0 && ball.vector.y < 0
-        || ball.vector.x > 0 && ball.vector.y === 0 || ball.vector.x < 0 && ball.vector.y === 0) {
+    if (((ball.vector.x === 0 && ball.vector.y > 0 || ball.vector.y < 0))
+        || ((ball.vector.x > 0 || ball.vector.x < 0) && ball.vector.y === 0)) {
         return ball.center.x >= block.position.x && ball.center.x <= block.position.x + block.size
             && ball.center.y >= block.position.y - offset && ball.center.y <= block.position.y - offset + block.size;
     }
 
-    if (ball.vector.x > 0 && ball.vector.y > 0 || ball.vector.x < 0 && ball.vector.y < 0
-        || ball.vector.x > 0 && ball.vector.y < 0 || ball.vector.x < 0 && ball.vector.y > 0) {
+    if (ball.vector.x !== 0 && ball.vector.y !== 0) {
         return Math.abs(ball.center.x - block.center.x) <= ball.width / 2 + block.height / 2
             && Math.abs(ball.center.y - block.center.y) <= ball.width / 2 + block.height / 2;
     }

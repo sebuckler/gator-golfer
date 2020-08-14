@@ -90,11 +90,12 @@ export class Playing {
         }
 
         if (detectBallInHole(ball, hole)) {
-            this.transition(this.levelCompleteState, {level: this.level});
+            this.transition(this.levelCompleteState, {level: this.level, success: true});
         }
 
         if (this.bounces > this.level.maxBounce) {
             ball.speed = 0;
+            this.transition(this.levelCompleteState, {level: this.level, success: false});
         }
     }
 }

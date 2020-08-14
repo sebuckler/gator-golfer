@@ -3,6 +3,7 @@ import {buildLevel, levels} from "../levels.js";
 
 export class LevelComplete {
     constructor(game, states, transition) {
+        this.canAdvance = false;
         this.game = game;
         this.level = {};
         this.startState = states.START_GAME;
@@ -16,7 +17,9 @@ export class LevelComplete {
     goToNextLevel() {
         const nextLvlIndex = this.level.index + 1;
 
-        if (levels.length > nextLvlIndex) {
+        if (!this.canAdvance) {
+            this.transition(this.playingState, {level: buildLevel(this.level.index, this.game)});
+        } else if (levels.length > nextLvlIndex) {
             this.transition(this.playingState, {level: buildLevel(nextLvlIndex, this.game)});
         } else {
             this.transition(this.gameOverState, {});
@@ -24,11 +27,12 @@ export class LevelComplete {
     }
 
     load(data) {
+        this.canAdvance = data.success;
         this.level = data.level;
         this.startTime = this.game.time;
 
         handleControls({
-            enter: this.goToNextLevel,
+            enter: this.goToNextLevel.bind(this),
             esc: () => {
                 this.transition(this.startState, {});
             },
@@ -52,8 +56,12 @@ export class LevelComplete {
         blocks.forEach(block => {
             block.draw(ctx);
         });
-        ball.position.x = hole.position.x + (hole.size - ball.size) / 2;
-        ball.position.y = hole.position.y + (hole.size - ball.size) / 2;
+
+        if (this.canAdvance) {
+            ball.position.x = hole.position.x + (hole.size - ball.size) / 2;
+            ball.position.y = hole.position.y + (hole.size - ball.size) / 2;
+        }
+
         ball.draw(ctx);
     }
 }
