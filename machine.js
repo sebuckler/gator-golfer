@@ -1,4 +1,5 @@
 import {resetControls} from "./controls.js";
+import {buildLevel} from "./levels.js";
 import {GameOver} from "./states/game-over.js";
 import {LevelComplete} from "./states/level-complete.js";
 import {Pause} from "./states/pause.js";
@@ -33,7 +34,15 @@ export class StateMachine {
 
     start(level = 0) {
         const {PLAYING, START_GAME} = this.stateNames;
-        this.transition(level > 0 ? PLAYING : START_GAME, {})
+        let data = {};
+        let state = START_GAME;
+
+        if (level > 0) {
+            data = {level: buildLevel(level, this.game)};
+            state = PLAYING;
+        }
+
+        this.transition(state, data);
     }
 
     transition(to, data) {

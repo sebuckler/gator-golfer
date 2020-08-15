@@ -79,13 +79,6 @@ export class Playing {
 
     render(ctx) {
         const {ball, hole, maxBounce} = this.level;
-
-        ctx.fillStyle = "#0c0";
-        ctx.fillRect(0, 0, this.game.width, this.game.height);
-        ball.update();
-        this.updateGameInfo();
-        this.drawObjects(ctx);
-
         const [wallHit, wallRot] = detectBallHitWall(ball, this.game);
 
         if (wallHit) {
@@ -103,6 +96,12 @@ export class Playing {
             ball.speed = 0;
             this.transition(this.levelCompleteState, {level: this.level, success: false});
         }
+
+        ctx.fillStyle = "#0c0";
+        ctx.fillRect(0, 0, this.game.width, this.game.height);
+        ball.update();
+        this.updateGameInfo();
+        this.drawObjects(ctx);
     }
 
     updateGameInfo() {

@@ -1,9 +1,9 @@
 export function detectBallHitWall(ball, game) {
-    if (ball.position.x + ball.width >= game.width || ball.position.x <= 0) {
+    if (ball.center.x + ball.width / 2 >= game.width || ball.position.x <= 0) {
         return [true, 90];
     }
 
-    if (ball.position.y + ball.width >= game.height || ball.position.y <= 0) {
+    if (ball.center.y + ball.width / 2 >= game.height || ball.position.y <= 0) {
         return [true, 0];
     }
 
