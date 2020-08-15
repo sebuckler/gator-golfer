@@ -20,6 +20,12 @@ export class GameOver {
     }
 
     render(ctx) {
-        ctx.clearRect(0, 0, this.game.width, this.game.height);
+        ctx.fillStyle = "#0c0";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.font = "48px mono";
+        ctx.fillText("Game Over", this.game.width / 2, this.game.height / 2);
+        ctx.font = "32px mono";
+        ctx.fillText("Press ENTER to restart", this.game.width / 2, this.game.height / 2 + 128);
     }
 }
