@@ -81,6 +81,8 @@ export class Playing {
         const {ball, hole, maxBounce} = this.level;
         const [wallHit, wallRot] = detectBallHitWall(ball, this.game);
 
+        this.updateGameInfo();
+
         if (wallHit) {
             const {x, y} = reflectVector(ball.vector, wallRot);
 
@@ -95,7 +97,6 @@ export class Playing {
         ctx.fillStyle = "#0c0";
         ctx.fillRect(0, 0, this.game.width, this.game.height);
         ball.update();
-        this.updateGameInfo();
         this.drawObjects(ctx);
 
         if (this.bounces > maxBounce) {
