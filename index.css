@@ -9,6 +9,8 @@ main {
 }
 
 #gameInfo {
+    background-color: #093;
+    border: solid 2px #060;
     display: grid;
 }
 
@@ -21,8 +23,4 @@ main {
     grid-column: span 1 / 2;
     margin: 0;
     text-align: right;
-}
-
-#gameScreen {
-    border: solid 8px black;
 }

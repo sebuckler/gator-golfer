@@ -92,16 +92,16 @@ export class Playing {
             this.transition(this.levelCompleteState, {level: this.level, success: true});
         }
 
-        if (this.bounces > maxBounce) {
-            ball.speed = 0;
-            this.transition(this.levelCompleteState, {level: this.level, success: false});
-        }
-
         ctx.fillStyle = "#0c0";
         ctx.fillRect(0, 0, this.game.width, this.game.height);
         ball.update();
         this.updateGameInfo();
         this.drawObjects(ctx);
+
+        if (this.bounces > maxBounce) {
+            ball.speed = 0;
+            this.transition(this.levelCompleteState, {level: this.level, success: false});
+        }
     }
 
     updateGameInfo() {
