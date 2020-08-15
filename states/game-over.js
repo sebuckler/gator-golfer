@@ -9,6 +9,9 @@ export class GameOver {
     }
 
     load() {
+        document.getElementById("levelTitle").innerHTML = "&nbsp;";
+        document.getElementById("bouncesLeft").innerHTML = "&nbsp;";
+
         handleControls({
             enter: () => {
                 this.transition(this.startState, {});

@@ -2,14 +2,27 @@ img {
     display: none;
 }
 
-#gameScreen {
-    border: solid 1px black;
-    display: block;
-    margin: 0 auto;
-}
-
 main {
     margin: 0 auto;
     max-width: 960px;
     width: 100%;
+}
+
+#gameInfo {
+    display: grid;
+}
+
+#levelTitle {
+    grid-column: span 1 / 1;
+    margin: 0;
+}
+
+#bouncesLeft {
+    grid-column: span 1 / 2;
+    margin: 0;
+    text-align: right;
+}
+
+#gameScreen {
+    border: solid 8px black;
 }

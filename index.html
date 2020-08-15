@@ -6,13 +6,12 @@
         <link href="index.css" rel="stylesheet" />
     </head>
     <body>
-        <img id="teePad" src="assets/teepad.png" alt="tee pad image" />
-        <img id="golfBall" src="assets/golfball.png" alt="ball image" />
-        <img id="hole" src="assets/hole.png" alt="hole image" />
-        <img id="block" src="assets/block.png" alt="block image" />
-        <img id="tile" src="assets/tile.png" alt="tile image" />
-
         <main>
+            <header id="gameInfo">
+                <h2 id="levelTitle">&nbsp;</h2>
+                <h3 id="bouncesLeft">&nbsp;</h3>
+            </header>
+
             <canvas id="gameScreen" height="832" width="960"></canvas>
 
             <figure>
@@ -30,6 +29,12 @@
                 <dd>start game or reset level after complete</dd>
             </dl>
         </main>
+
+        <img id="teePad" src="assets/teepad.png" alt="tee pad image" />
+        <img id="golfBall" src="assets/golfball.png" alt="ball image" />
+        <img id="hole" src="assets/hole.png" alt="hole image" />
+        <img id="block" src="assets/block.png" alt="block image" />
+        <img id="tile" src="assets/tile.png" alt="tile image" />
 
         <script src="index.js" type="module"></script>
     </body>
