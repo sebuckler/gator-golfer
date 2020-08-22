@@ -21,22 +21,22 @@ export function detectBallHitTile(ball, tile) {
     const distX = Math.abs(ball.center.x - tile.center.x);
     const distY = Math.abs(ball.center.y - tile.center.y);
 
-    return isBallMovingToObject(ball, tile) && Math.sqrt(distX * distX + distY * distY) <= ball.size;
+    return canCollide(ball, tile) && Math.sqrt(distX * distX + distY * distY) <= ball.size;
 }
 
-export function detectBallHitBlock(ball, block) {
-    if (ball.speed === 0 || !isBallMovingToObject(ball, block)) {
+export function detectObjHitBlock(obj, block) {
+    if (obj.speed === 0 || !canCollide(obj, block)) {
         return false;
     }
 
-    const vm = ball.vector.y / ball.vector.x;
+    const vm = obj.vector.y / obj.vector.x;
     const nm = block.normal.y / block.normal.x;
 
     if ((!isFinite(vm) && !isFinite(nm)) || vm === nm) {
-        return detectHeadOn(ball, block);
+        return detectHeadOn(obj, block);
     }
 
-    return detectCorner(ball, block);
+    return detectCorner(obj, block);
 }
 
 export function reflectVector(vec, rot) {
@@ -63,7 +63,7 @@ function detectHeadOn(ball, block) {
 function detectCorner(ball, block) {
     const offset = block.size / 4;
 
-    if (((ball.vector.x === 0 && ball.vector.y > 0 || ball.vector.y < 0))
+    if ((ball.vector.x === 0 && (ball.vector.y > 0 || ball.vector.y < 0))
         || ((ball.vector.x > 0 || ball.vector.x < 0) && ball.vector.y === 0)) {
         return ball.center.x >= block.position.x && ball.center.x <= block.position.x + block.size
             && ball.center.y >= block.position.y - offset && ball.center.y <= block.position.y - offset + block.size;
@@ -110,7 +110,7 @@ function reflectDiagonal(vec, rot) {
     }
 }
 
-function isBallMovingToObject(ball, obj) {
+function canCollide(ball, obj) {
     if (ball.vector.x === 0 && ball.vector.y > 0) {
         return ball.center.y >= obj.center.y;
     }

@@ -15,10 +15,10 @@ export class GolfBall {
         ctx.drawImage(this.image, this.position.x + radius, this.position.y + radius, this.width, this.width);
     }
 
-    move(vel) {
-        this.speed = vel.speed;
-        this.vector.x = vel.x;
-        this.vector.y = vel.y;
+    move(speed, vec) {
+        this.speed = speed;
+        this.vector.x = vec.x;
+        this.vector.y = vec.y;
     }
 
     update() {

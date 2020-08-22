@@ -1,5 +1,5 @@
 import {
-    detectBallHitBlock,
+    detectObjHitBlock,
     detectBallHitTile,
     detectBallHitWall,
     detectBallInHole,
@@ -17,9 +17,23 @@ export class Playing {
         this.transition = transition;
     }
 
-    drawObjects(ctx) {
-        const {ball, blocks, hole, teePad, tiles} = this.level;
+    aimBall(vec) {
+        return () => {
+            if (this.level.ball.speed !== 0) {
+                return;
+            }
 
+            this.level.aimPath.setVector(vec);
+        };
+    }
+
+    draw(ctx) {
+        const {aimPath, ball, blocks, hole, teePad, tiles} = this.level;
+
+        ctx.fillStyle = "#0c0";
+        ctx.fillRect(0, 0, this.game.width, this.game.height);
+        hole.draw(ctx);
+        teePad.draw(ctx);
         tiles.forEach(tile => {
             tile.draw(ctx);
 
@@ -29,18 +43,22 @@ export class Playing {
             }
         });
         blocks.forEach(block => {
-            block.draw(ctx);
+            if (ball.speed === 0 && detectObjHitBlock(aimPath, block)) {
+                aimPath.move(reflectVector(aimPath.vector, block.rotation));
+            }
 
-            if (detectBallHitBlock(ball, block)) {
-                const {x, y} = reflectVector(ball.vector, block.rotation);
-
-                ball.move({speed: 6, x, y});
+            if (detectObjHitBlock(ball, block)) {
+                ball.move(6, reflectVector(ball.vector, block.rotation));
                 this.bounces += 1;
             }
+
+            block.draw(ctx);
         });
-        hole.draw(ctx);
-        teePad.draw(ctx);
         ball.draw(ctx);
+
+        if (ball.speed === 0) {
+            aimPath.draw(ctx);
+        }
     }
 
     load(data) {
@@ -49,44 +67,46 @@ export class Playing {
             this.bounces = 0;
         }
 
+        this.aimBall({x: 0, y: 1});
+
         handleControls({
             esc: () => {
                 this.transition(this.pauseState, {level: this.level});
             },
-            left: () => {
-                if (this.level.ball.speed !== 0) {
-                    return;
-                }
-
-                this.level.ball.move({speed: 7, x: -1, y: 1});
-            },
-            right: () => {
-                if (this.level.ball.speed !== 0) {
-                    return;
-                }
-
-                this.level.ball.move({speed: 7, x: 1, y: 1});
-            },
+            left: this.aimBall({x: -1, y: 1}).bind(this),
+            right: this.aimBall({x: 1, y: 1}).bind(this),
             space: () => {
                 if (this.level.ball.speed !== 0) {
                     return;
                 }
 
-                this.level.ball.move({speed: 7, x: 0, y: 1});
-            }
+                this.level.ball.move(7, this.level.aimPath.vector);
+            },
+            up: this.aimBall({x: 0, y: 1}).bind(this),
         });
     }
 
     render(ctx) {
-        const {ball, hole, maxBounce} = this.level;
+        this.update();
+        this.draw(ctx);
+
+        if (this.bounces > this.level.maxBounce) {
+            this.level.ball.speed = 0;
+            this.transition(this.levelCompleteState, {level: this.level, success: false});
+        }
+    }
+
+    update() {
+        const {aimPath, ball, hole, maxBounce, name} = this.level;
         const [wallHit, wallRot] = detectBallHitWall(ball, this.game);
 
-        this.updateGameInfo();
+        document.getElementById("levelTitle").innerText = name;
+        document.getElementById("bouncesLeft").innerText = `Bounces Left: ${maxBounce - this.bounces}`;
 
         if (wallHit) {
             const {x, y} = reflectVector(ball.vector, wallRot);
 
-            ball.move({speed: 6, x, y});
+            ball.move(6, {x, y});
             this.bounces += 1;
         }
 
@@ -94,21 +114,7 @@ export class Playing {
             this.transition(this.levelCompleteState, {level: this.level, success: true});
         }
 
-        ctx.fillStyle = "#0c0";
-        ctx.fillRect(0, 0, this.game.width, this.game.height);
         ball.update();
-        this.drawObjects(ctx);
-
-        if (this.bounces > maxBounce) {
-            ball.speed = 0;
-            this.transition(this.levelCompleteState, {level: this.level, success: false});
-        }
-    }
-
-    updateGameInfo() {
-        const {maxBounce, name} = this.level;
-
-        document.getElementById("levelTitle").innerText = name;
-        document.getElementById("bouncesLeft").innerText = `Bounces Left: ${maxBounce - this.bounces}`;
+        aimPath.update();
     }
 }

@@ -1,3 +1,4 @@
+import {AimPath} from "./objects/aim-path.js";
 import {Block} from "./objects/block.js";
 import {GolfBall} from "./objects/golf-ball.js";
 import {Hole} from "./objects/hole.js";
@@ -41,6 +42,7 @@ export function buildLevel(n, game) {
                 case "t":
                     level.teePad = new TeePad(game, [x, y]);
                     level.ball = new GolfBall(game, [x, y]);
+                    level.aimPath = new AimPath(game, [x, y]);
                     break;
                 default:
                     break;
