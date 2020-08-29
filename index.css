@@ -1,30 +1,90 @@
 html {
+    color: #030;
     font-family: monospace;
+    font-size: 16px;
 }
 
-img {
-    display: none;
+body {
+    background-color: #7f7;
+    margin: 0;
+    padding: 0;
 }
 
 main {
-    margin: 0 auto;
-    max-width: 960px;
-    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 61rem minmax(0, 1fr);
+}
+
+aside {
+    padding: 1rem 4rem;
+}
+
+h1 {
+    font-size: 2rem;
+    margin: 0;
+}
+
+p {
+    margin: 1rem 0;
 }
 
 #gameInfo {
     background-color: #093;
-    border: solid 2px #060;
+    border: solid .5rem #030;
+    box-sizing: border-box;
     display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
 }
 
-#levelTitle {
-    grid-column: span 1 / 1;
+#levelTitle, #bouncesLeft {
+    color: #7f7;
     margin: 0;
+    padding: .5rem;
+    vertical-align: middle;
 }
 
 #bouncesLeft {
-    grid-column: span 1 / 2;
-    margin: 0;
     text-align: right;
+}
+
+#gameCanvas {
+    border: solid .5rem #030;
+}
+
+dl {
+    display: grid;
+    grid-template-columns: max-content auto;
+    grid-column-gap: 2rem;
+}
+
+dt {
+    display: grid;
+    font-weight: bold;
+    grid-column-start: 1;
+    grid-template-columns: 4rem auto;
+    padding-bottom: .25rem;
+}
+
+dt code {
+    grid-column-start: 1;
+    text-align: center;
+}
+
+dt span {
+    grid-column-start: 2;
+}
+
+dd {
+    grid-column-start: 2;
+    margin: 0;
+}
+
+footer {
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+img {
+    display: none;
 }

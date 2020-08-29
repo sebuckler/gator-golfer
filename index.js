@@ -1,6 +1,6 @@
 import {StateMachine} from "./machine.js";
 
-const ctx = document.getElementById("gameScreen").getContext("2d");
+const ctx = document.getElementById("gameCanvas").getContext("2d");
 const game = {
     gridUnit: 64,
     height: 13 * 64,

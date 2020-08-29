@@ -7,28 +7,52 @@
     </head>
     <body>
         <main>
-            <header id="gameInfo">
-                <h2 id="levelTitle">&nbsp;</h2>
-                <h3 id="bouncesLeft">&nbsp;</h3>
-            </header>
+            <aside id="aboutGame">
+                <h1>Gator Golfer</h1>
 
-            <canvas id="gameScreen" height="832" width="960"></canvas>
+                <p>Welcome to the most anticipated game of all time!</p>
+                <p><strong>Gator Golfer</strong> is a stimulating adventure in the wonderful world of mini-golf.</p>
+            </aside>
 
-            <figure>
-                <figcaption>Music</figcaption>
-                <audio controls src="assets/gator-golfer.wav"></audio>
-            </figure>
+            <section id="gameScreen">
+                <header id="gameInfo">
+                    <h2 id="levelTitle">&nbsp;</h2>
+                    <h3 id="bouncesLeft">&nbsp;</h3>
+                </header>
 
-            <p>Controls</p>
+                <canvas id="gameCanvas" height="832" width="960"></canvas>
+            </section>
 
-            <dl>
-                <dt><code>Spacebar</code></dt>
-                <dd>putt the golf ball</dd>
+            <aside id="gameControls">
+                <h3>Controls</h3>
 
-                <dt><code>Enter</code></dt>
-                <dd>start game or reset level after complete</dd>
-            </dl>
+                <dl>
+                    <dt><code>&leftarrow;</code> <span>Left Arrow</span></dt>
+                    <dd>Aim the ball left</dd>
+
+                    <dt><code>&rightarrow;</code> <span>Right Arrow</span></dt>
+                    <dd>Aim the ball right</dd>
+
+                    <dt><code>&uparrow;</code> <span>Up Arrow</span></dt>
+                    <dd>Aim the ball up</dd>
+
+                    <dt><code>_</code> <span>Spacebar</span></dt>
+                    <dd>Putt the ball</dd>
+
+                    <dt><code>ESC</code> <span>Escape Key</span></dt>
+                    <dd>Pause the game</dd>
+                </dl>
+
+                <figure>
+                    <figcaption>Music</figcaption>
+                    <audio controls src="assets/gator-golfer.wav"></audio>
+                </figure>
+            </aside>
         </main>
+
+        <footer>
+            <small>&copy; 2020 Stephen Buckler</small>
+        </footer>
 
         <img id="teePad" src="assets/teepad.png" alt="tee pad image" />
         <img id="golfBall" src="assets/golfball.png" alt="ball image" />
