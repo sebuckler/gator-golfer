@@ -1,4 +1,4 @@
-import {StateMachine} from "./machine.js";
+import {StateMachine} from "./engine/fsm.js";
 
 const ctx = document.getElementById("gameCanvas").getContext("2d");
 const game = {

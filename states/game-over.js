@@ -1,4 +1,4 @@
-import {handleControls} from "../controls.js";
+import {handleControls} from "../engine/controls.js";
 
 export class GameOver {
     constructor(game, states, transition) {

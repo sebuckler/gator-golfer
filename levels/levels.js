@@ -1,9 +1,9 @@
-import {AimPath} from "./objects/aim-path.js";
-import {Block} from "./objects/block.js";
-import {GolfBall} from "./objects/golf-ball.js";
-import {Hole} from "./objects/hole.js";
-import {TeePad} from "./objects/tee-pad.js";
-import {Tile} from "./objects/tile.js";
+import {AimPath} from "../objects/aim-path.js";
+import {Block} from "../objects/block.js";
+import {GolfBall} from "../objects/golf-ball.js";
+import {Hole} from "../objects/hole.js";
+import {TeePad} from "../objects/tee-pad.js";
+import {Tile} from "../objects/tile.js";
 
 export function buildLevel(n, game) {
     const {field, maxBounce, name} = levels[n];

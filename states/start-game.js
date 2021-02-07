@@ -1,5 +1,5 @@
-import {handleControls} from "../controls.js";
-import {buildLevel} from "../levels.js";
+import {handleControls} from "../engine/controls.js";
+import {buildLevel} from "../levels/levels.js";
 
 export class StartGame {
     constructor(game, states, transition) {

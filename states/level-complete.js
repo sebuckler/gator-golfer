@@ -1,5 +1,5 @@
-import {handleControls} from "../controls.js";
-import {buildLevel, levels} from "../levels.js";
+import {handleControls} from "../engine/controls.js";
+import {buildLevel, levels} from "../levels/levels.js";
 
 export class LevelComplete {
     constructor(game, states, transition) {

@@ -1,10 +1,10 @@
 import {resetControls} from "./controls.js";
-import {buildLevel} from "./levels.js";
-import {GameOver} from "./states/game-over.js";
-import {LevelComplete} from "./states/level-complete.js";
-import {Pause} from "./states/pause.js";
-import {Playing} from "./states/playing.js";
-import {StartGame} from "./states/start-game.js";
+import {buildLevel} from "../levels/levels.js";
+import {GameOver} from "../states/game-over.js";
+import {LevelComplete} from "../states/level-complete.js";
+import {Pause} from "../states/pause.js";
+import {Playing} from "../states/playing.js";
+import {StartGame} from "../states/start-game.js";
 
 export class StateMachine {
     constructor(game) {

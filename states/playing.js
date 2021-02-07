@@ -4,8 +4,8 @@ import {
     detectBallHitWall,
     detectBallInHole,
     reflectVector
-} from "../collisions.js";
-import {handleControls} from "../controls.js";
+} from "../engine/collisions.js";
+import {handleControls} from "../engine/controls.js";
 
 export class Playing {
     constructor(game, states, transition) {
