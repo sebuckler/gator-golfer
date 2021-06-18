@@ -9,14 +9,14 @@ const key = {
 }
 let handlers = {};
 
-document.addEventListener("keydown", (ev) => {
-    if (handlers[ev.code] != null) {
-        handlers[ev.code]();
-        ev.preventDefault();
+document.addEventListener("keydown", (event) => {
+    if (handlers[event.code] != null) {
+        handlers[event.code]();
+        event.preventDefault();
     }
 });
 
-export function handleControls({enter, esc, left, right, space, up}) {
+export function handleInput({enter, esc, left, right, space, up}) {
     handlers[key.ENTER] = enter;
     handlers[key.LEFT] = left;
     handlers[key.NUMPAD_ENTER] = enter;
@@ -26,6 +26,6 @@ export function handleControls({enter, esc, left, right, space, up}) {
     handlers[key.UP] = up;
 }
 
-export function resetControls() {
+export function resetInputHandlers() {
     handlers = {};
 }

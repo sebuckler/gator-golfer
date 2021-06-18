@@ -1,20 +1,22 @@
-import {handleControls} from "../engine/controls.js";
+import {stateNames} from "../engine/fsm.js";
+import {handleInput} from "../engine/input.js";
 import {buildLevel} from "../levels/levels.js";
 
 export class StartGame {
-    constructor(game, states, transition) {
+    constructor(game) {
         this.game = game;
-        this.playingState = states.PLAYING;
         this.splashScreenImage = document.getElementById("splashScreen");
-        this.transition = transition;
     }
 
-    load() {
-        handleControls({
+    load(data, transition) {
+        handleInput({
             enter: () => {
-                this.transition(this.playingState, {level: buildLevel(0, this.game)});
+                transition(stateNames.PLAYING, {level: buildLevel(0, this.game)});
             },
         });
+    }
+
+    update(deltaTime) {
     }
 
     render(ctx) {

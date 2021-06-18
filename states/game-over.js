@@ -1,22 +1,24 @@
-import {handleControls} from "../engine/controls.js";
+import {stateNames} from "../engine/fsm.js";
+import {handleInput} from "../engine/input.js";
 
 export class GameOver {
-    constructor(game, states, transition) {
+    constructor(game) {
         this.game = game;
         this.level = {};
-        this.startState = states.START_GAME;
-        this.transition = transition;
     }
 
-    load() {
+    load(data, transition) {
         document.getElementById("levelTitle").innerHTML = "&nbsp;";
         document.getElementById("bouncesLeft").innerHTML = "&nbsp;";
 
-        handleControls({
+        handleInput({
             enter: () => {
-                this.transition(this.startState, {});
+                transition(stateNames.START_GAME, {});
             }
         });
+    }
+
+    update(deltaTime) {
     }
 
     render(ctx) {

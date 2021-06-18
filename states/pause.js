@@ -1,33 +1,33 @@
-import {handleControls} from "../engine/controls.js";
-import {buildLevel, levels} from "../levels/levels.js";
+import {stateNames} from "../engine/fsm.js";
+import {handleInput} from "../engine/input.js";
 
 export class Pause {
-    constructor(game, states, transition) {
+    constructor(game) {
         this.game = game;
         this.level = {};
-        this.pauseState = states.PAUSE;
-        this.playingState = states.PLAYING;
-        this.transition = transition;
     }
 
-    load(data) {
+    load(data, transition) {
         this.level = data.level;
 
-        handleControls({
+        handleInput({
             esc: () => {
-                this.transition(this.playingState, {prev: this.pauseState});
+                transition(stateNames.PLAYING, {prev: stateNames.PAUSE});
             },
         });
+    }
+
+    update(deltaTime) {
     }
 
     render(ctx) {
         ctx.fillStyle = "#0c0";
         ctx.fillRect(0, 0, this.game.width, this.game.height);
 
-        this.level.tiles.forEach(tile => {
+        this.level.tiles.forEach((tile) => {
             tile.draw(ctx);
         });
-        this.level.blocks.forEach(block => {
+        this.level.blocks.forEach((block) => {
             block.draw(ctx);
         });
         this.level.hole.draw(ctx);

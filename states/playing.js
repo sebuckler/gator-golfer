@@ -1,57 +1,82 @@
-import {
-    detectObjHitBlock,
-    detectBallHitTile,
-    detectBallHitWall,
-    detectBallInHole,
-    reflectVector
-} from "../engine/collisions.js";
-import {handleControls} from "../engine/controls.js";
+import {stateNames} from "../engine/fsm.js";
+import {handleInput} from "../engine/input.js";
+import {Vector} from "../engine/vector.js";
 
 export class Playing {
-    constructor(game, states, transition) {
-        this.bounces = 0;
+    constructor(game) {
         this.game = game;
+        this.bounces = 0;
         this.level = {};
-        this.levelCompleteState = states.LEVEL_COMPLETE;
-        this.pauseState = states.PAUSE;
-        this.transition = transition;
     }
 
-    aimBall(vec) {
-        return () => {
-            if (this.level.ball.speed !== 0) {
-                return;
-            }
+    load(data, transition) {
+        if (data.prev !== stateNames.PAUSE) {
+            this.level = data.level;
+            this.bounces = 0;
+        }
 
-            this.level.aimPath.setVector(vec);
-        };
+        document.getElementById("levelTitle").innerText = this.level.name;
+
+        this.aimBall(0, -1);
+
+        handleInput({
+            esc: () => {
+                transition(stateNames.PAUSE, {level: this.level});
+            },
+            left: () => {
+                this.aimBall(-1, -1);
+            },
+            right: () => {
+                this.aimBall(1, -1);
+            },
+            up: () => {
+                this.aimBall(0, -1);
+            },
+            space: () => {
+                if (this.level.ball.velocity.magnitude !== 0) {
+                    return;
+                }
+
+                let velocity = this.level.aimPath.velocity.copy();
+                velocity.multiplyScalar(512);
+
+                this.level.ball.move(velocity);
+            },
+        });
     }
 
-    draw(ctx) {
+    update(deltaTime) {
+        const {aimPath, ball, maxBounce} = this.level;
+
+        document.getElementById("bouncesLeft").innerText = `Bounces Left: ${maxBounce - this.bounces}`;
+
+        ball.update(deltaTime);
+        aimPath.update();
+
+        if (this.bounces > this.level.maxBounce) {
+            this.level.ball.speed = 0;
+
+            return {
+                to: stateNames.LEVEL_COMPLETE,
+                data: {level: this.level, success: false},
+            };
+        }
+
+        return this.detectCollisions();
+    }
+
+    render(ctx) {
         const {aimPath, ball, blocks, hole, teePad, tiles} = this.level;
 
         ctx.fillStyle = "#0c0";
         ctx.fillRect(0, 0, this.game.width, this.game.height);
+
         hole.draw(ctx);
         teePad.draw(ctx);
-        tiles.forEach(tile => {
+        tiles.forEach((tile) => {
             tile.draw(ctx);
-
-            if (detectBallHitTile(ball, tile)) {
-                ball.move({speed: 6, x: -ball.vector.x, y: -ball.vector.y});
-                this.bounces += 1;
-            }
         });
-        blocks.forEach(block => {
-            if (ball.speed === 0 && detectObjHitBlock(aimPath, block)) {
-                aimPath.move(reflectVector(aimPath.vector, block.rotation));
-            }
-
-            if (detectObjHitBlock(ball, block)) {
-                ball.move(6, reflectVector(ball.vector, block.rotation));
-                this.bounces += 1;
-            }
-
+        blocks.forEach((block) => {
             block.draw(ctx);
         });
         ball.draw(ctx);
@@ -59,62 +84,75 @@ export class Playing {
         if (ball.speed === 0) {
             aimPath.draw(ctx);
         }
+        ;
     }
 
-    load(data) {
-        if (data.prev !== this.pauseState) {
-            this.level = data.level;
-            this.bounces = 0;
+    aimBall(x, y) {
+        if (this.level.ball.velocity.magnitude !== 0) {
+            return;
         }
 
-        this.aimBall({x: 0, y: 1});
-
-        handleControls({
-            esc: () => {
-                this.transition(this.pauseState, {level: this.level});
-            },
-            left: this.aimBall({x: -1, y: 1}).bind(this),
-            right: this.aimBall({x: 1, y: 1}).bind(this),
-            space: () => {
-                if (this.level.ball.speed !== 0) {
-                    return;
-                }
-
-                this.level.ball.move(7, this.level.aimPath.vector);
-            },
-            up: this.aimBall({x: 0, y: 1}).bind(this),
-        });
+        this.level.aimPath.move(new Vector(x, y));
     }
 
-    render(ctx) {
-        this.update();
-        this.draw(ctx);
+    detectCollisions() {
+        const {ball, blocks, hole} = this.level;
+        let collisions = [];
 
-        if (this.bounces > this.level.maxBounce) {
+        ball.collideObject(hole, collisions);
+        if (collisions.length > 0) {
             this.level.ball.speed = 0;
-            this.transition(this.levelCompleteState, {level: this.level, success: false});
+
+            return {
+                to: stateNames.LEVEL_COMPLETE,
+                data: {level: this.level, success: true},
+            };
+        }
+
+        ball.collideWall(this.game, collisions)
+        if (collisions.length > 0) {
+            this.bounces += 1;
+
+            if (collisions.length === 1) {
+                ball.velocity.reflect(collisions[0]);
+            } else {
+                ball.velocity.multiplyScalar(-1);
+            }
+
+            return;
+        }
+
+        let collidedObjects = [];
+
+        blocks.filter((block) => ball.collideNarrowPhase(block))
+            .forEach((block) => {
+                let collisionCount = collisions.length;
+
+                ball.collideObject(block, collisions);
+
+                if (collisions.length > collisionCount) {
+                    collidedObjects.push(block);
+                }
+            });
+
+        if (collisions.length > 0) {
+            this.bounces += 1;
+
+            this.resolveCollisions(collidedObjects, collisions);
         }
     }
 
-    update() {
-        const {aimPath, ball, hole, maxBounce, name} = this.level;
-        const [wallHit, wallRot] = detectBallHitWall(ball, this.game);
+    resolveCollisions(collidedObjects, collisions) {
+        const {ball} = this.level;
 
-        document.getElementById("levelTitle").innerText = name;
-        document.getElementById("bouncesLeft").innerText = `Bounces Left: ${maxBounce - this.bounces}`;
+        if (collisions.length === 1) {
+            ball.velocity.reflect(collisions[0]);
+        } else {
+            let magnitudes = collisions.map((collision) => collision.magnitude);
 
-        if (wallHit) {
-            const {x, y} = reflectVector(ball.vector, wallRot);
-
-            ball.move(6, {x, y});
-            this.bounces += 1;
+            ball.velocity.reflect(
+                collisions.filter((collision) => collision.magnitude <= Math.min(...magnitudes))[0]
+            );
         }
-
-        if (detectBallInHole(ball, hole)) {
-            this.transition(this.levelCompleteState, {level: this.level, success: true});
-        }
-
-        ball.update();
-        aimPath.update();
     }
 }

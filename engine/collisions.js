@@ -1,147 +1,121 @@
-export function detectBallHitWall(ball, game) {
-    if (ball.center.x + ball.width / 2 >= game.width || ball.position.x <= 0) {
-        return [true, 90];
-    }
+import {Vector} from "./vector.js";
 
-    if (ball.center.y + ball.width / 2 >= game.height || ball.position.y <= 0) {
-        return [true, 0];
-    }
-
-    return [false, null];
+export function aabbWall(rectangle, wall, collisions) {
+    return rectangle.topLeft.y < 0
+        || rectangle.topLeft.y + rectangle.height > wall.height
+        || rectangle.topLeft.x < 0
+        || rectangle.topLeft.x + rectangle.width > wall.width;
 }
 
-export function detectBallInHole(ball, hole) {
-    const bRad = ball.size / 2;
-
-    return ball.position.x + bRad >= hole.position.x && ball.position.x + bRad <= hole.position.x + hole.size
-        && ball.position.y + bRad <= hole.position.y + hole.size && ball.position.y + bRad >= hole.position.y;
+export function aabbAabb(rect1, rect2) {
+    return rect1.topLeft.x < rect2.bottomRight.x
+        && rect1.bottomRight.x > rect2.topLeft.x
+        && rect1.bottomRight.y > rect2.topLeft.y
+        && rect1.topLeft.y < rect2.bottomRight.y;
 }
 
-export function detectBallHitTile(ball, tile) {
-    const distX = Math.abs(ball.center.x - tile.center.x);
-    const distY = Math.abs(ball.center.y - tile.center.y);
-
-    return canCollide(ball, tile) && Math.sqrt(distX * distX + distY * distY) <= ball.size;
+export function pointAabb(point, rectangle) {
+    return point.x >= rectangle.topLeft.x
+        && point.y >= rectangle.topLeft.y
+        && point.x <= rectangle.bottomRight.x
+        && point.y <= rectangle.bottomRight.y;
 }
 
-export function detectObjHitBlock(obj, block) {
-    if (obj.speed === 0 || !canCollide(obj, block)) {
-        return false;
-    }
+export function pointCircle(point, circle, collisions) {
+    let pointVector = point.copy();
+    pointVector.subtract(circle.center);
 
-    const vm = obj.vector.y / obj.vector.x;
-    const nm = block.normal.y / block.normal.x;
+    if (pointVector.magnitude <= circle.radius) {
+        collisions.push(pointVector);
 
-    if ((!isFinite(vm) && !isFinite(nm)) || vm === nm) {
-        return detectHeadOn(obj, block);
-    }
-
-    return detectCorner(obj, block);
-}
-
-export function reflectVector(vec, rot) {
-    if (vec.x === 0 && (vec.y > 0 || vec.y < 0)) {
-        return reflectVertical(vec, rot);
-    }
-
-    if ((vec.x > 0 || vec.x < 0) && vec.y === 0) {
-        return reflectHorizontal(vec, rot);
-    }
-
-    if (vec.x !== 0 && vec.y !== 0) {
-        return reflectDiagonal(vec, rot);
-    }
-
-    return vec;
-}
-
-function detectHeadOn(ball, block) {
-    return Math.abs(ball.center.x - block.center.x) <= ball.width / 2 + block.height / 2
-        && Math.abs(ball.center.y - block.center.y) <= ball.width / 2 + block.height / 2;
-}
-
-function detectCorner(ball, block) {
-    const offset = block.size / 4;
-
-    if ((ball.vector.x === 0 && (ball.vector.y > 0 || ball.vector.y < 0))
-        || ((ball.vector.x > 0 || ball.vector.x < 0) && ball.vector.y === 0)) {
-        return ball.center.x >= block.position.x && ball.center.x <= block.position.x + block.size
-            && ball.center.y >= block.position.y - offset && ball.center.y <= block.position.y - offset + block.size;
-    }
-
-    if (ball.vector.x !== 0 && ball.vector.y !== 0) {
-        return Math.abs(ball.center.x - block.center.x) <= ball.width / 2 + block.height / 2
-            && Math.abs(ball.center.y - block.center.y) <= ball.width / 2 + block.height / 2;
+        return true;
     }
 }
 
-function reflectVertical(vec, rot) {
-    switch (rot) {
-        case 0:
-        case 90:
-            return {x: vec.x, y: -vec.y};
-        case 45:
-            return {x: -vec.y, y: vec.x};
-        case 135:
-            return {x: vec.y, y: vec.x};
+export function circleWall(circle, wall, collisions) {
+    if (circle.center.y - circle.radius < 0) {
+        collisions.push(new Vector(1, 0));
+    }
+
+    if (circle.center.y + circle.radius > wall.height) {
+        collisions.push(new Vector(-1, 0));
+    }
+
+    if (circle.center.x - circle.radius < 0) {
+        collisions.push(new Vector(0, -1));
+    }
+
+    if (circle.center.x + circle.radius > wall.width) {
+        collisions.push(new Vector(0, 1));
     }
 }
 
-function reflectHorizontal(vec, rot) {
-    switch (rot) {
-        case 0:
-        case 90:
-            return {x: -vec.x, y: vec.y};
-        case 45:
-        case 135:
-            return {x: vec.y, y: vec.x};
+export function circleAabb(circle, rectangle, collisions) {
+    let nearestVector = rectangle.bottomRight.copy();
+
+    if (circle.center.x < nearestVector.x) {
+        nearestVector.x = circle.center.x;
+    }
+    if (rectangle.topLeft.x > nearestVector.x) {
+        nearestVector.x = rectangle.topLeft.x;
+    }
+
+    if (circle.center.y < nearestVector.y) {
+        nearestVector.y = circle.center.y;
+    }
+    if (rectangle.topLeft.y > nearestVector.y) {
+        nearestVector.y = rectangle.topLeft.y;
+    }
+
+    let instanceVector = nearestVector.copy();
+    instanceVector.subtract(circle.center);
+
+    if (instanceVector.magnitude < circle.radius) {
+        collisions.push(instanceVector.normal());
+
+        return true;
     }
 }
 
-function reflectDiagonal(vec, rot) {
-    switch (rot) {
-        case 0:
-            return {x: vec.x, y: -vec.y};
-        case 45:
-        case 135:
-            return {x: -vec.x, y: -vec.y};
-        case 90:
-            return {x: -vec.x, y: vec.y};
+export function circleCircle(circ1, circ2, collisions) {
+    let combinedRadius = circ1.radius + circ2.radius;
+
+    if (circ1.center.distance(circ2.center) < combinedRadius * combinedRadius) {
+        let instanceVector = circ2.center.copy();
+        instanceVector.subtract(circ1.center);
+
+        collisions.push(instanceVector.normal());
+
+        return true;
     }
 }
 
-function canCollide(ball, obj) {
-    if (ball.vector.x === 0 && ball.vector.y > 0) {
-        return ball.center.y >= obj.center.y;
-    }
+export function circleLineSegment(circle, point1, point2, collisions) {
+    let circleCenter = circle.center.copy();
+    let segment = point1.copy();
 
-    if (ball.vector.x === 0 && ball.vector.y < 0) {
-        return ball.center.y <= obj.center.y;
-    }
+    circleCenter.subtract(point2);
+    segment.subtract(point2);
 
-    if (ball.vector.x < 0 && ball.vector.y === 0) {
-        return ball.center.x >= obj.center.x;
-    }
+    let dotProduct = circleCenter.dot(segment);
+    if (dotProduct > 0) {
+        let edgeMagnitude = segment.magnitude;
+        dotProduct = dotProduct / edgeMagnitude;
 
-    if (ball.vector.x > 0 && ball.vector.y === 0) {
-        return ball.center.x <= obj.center.x;
-    }
+        if (dotProduct < edgeMagnitude && circleCenter.magnitudeDot(dotProduct) <= circle.radius) {
+            segment.multiplyScalar(-1);
+            collisions.push(segment);
 
-    if (ball.vector.x < 0 && ball.vector.y > 0) {
-        return ball.center.x >= obj.center.x || ball.center.y >= obj.center.y;
+            return true;
+        }
     }
+}
 
-    if (ball.vector.x > 0 && ball.vector.y > 0) {
-        return ball.center.y >= obj.center.y || ball.center.x <= obj.center.x;
-    }
-
-    if (ball.vector.x < 0 && ball.vector.y < 0) {
-        return ball.center.y <= obj.center.y || ball.center.x >= obj.center.x;
-    }
-
-    if (ball.vector.x > 0 && ball.vector.y < 0) {
-        return ball.center.y <= obj.center.y || ball.center.x <= obj.center.x;
-    }
-
-    return false;
+export function circleTriangle(circle, triangle, collisions) {
+    return pointCircle(triangle.point1, circle, collisions)
+        || pointCircle(triangle.point2, circle, collisions)
+        || pointCircle(triangle.point3, circle, collisions)
+        || circleLineSegment(circle, triangle.point2, triangle.point1, collisions)
+        || circleLineSegment(circle, triangle.point3, triangle.point2, collisions)
+        || circleLineSegment(circle, triangle.point1, triangle.point3, collisions);
 }

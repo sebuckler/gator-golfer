@@ -1,4 +1,4 @@
-import {resetControls} from "./controls.js";
+import {resetInputHandlers} from "./input.js";
 import {buildLevel} from "../levels/levels.js";
 import {GameOver} from "../states/game-over.js";
 import {LevelComplete} from "../states/level-complete.js";
@@ -6,49 +6,52 @@ import {Pause} from "../states/pause.js";
 import {Playing} from "../states/playing.js";
 import {StartGame} from "../states/start-game.js";
 
+export const stateNames = {
+    START_GAME: 0,
+    PLAYING: 1,
+    PAUSE: 2,
+    LEVEL_COMPLETE: 3,
+    GAME_OVER: 4,
+};
+
 export class StateMachine {
     constructor(game) {
-        const boundTransition = this.transition.bind(this);
-        this.currentState = {};
         this.game = game;
-        this.stateNames = {
-            START_GAME: 0,
-            PLAYING: 1,
-            PAUSE: 2,
-            LEVEL_COMPLETE: 3,
-            GAME_OVER: 4,
-        };
         this.states = {
-            [this.stateNames.START_GAME]: new StartGame(game, this.stateNames, boundTransition),
-            [this.stateNames.PLAYING]: new Playing(game, this.stateNames, boundTransition),
-            [this.stateNames.PAUSE]: new Pause(game, this.stateNames, boundTransition),
-            [this.stateNames.LEVEL_COMPLETE]: new LevelComplete(game, this.stateNames, boundTransition),
-            [this.stateNames.GAME_OVER]: new GameOver(game, this.stateNames, boundTransition),
+            [stateNames.START_GAME]: new StartGame(game),
+            [stateNames.PLAYING]: new Playing(game),
+            [stateNames.PAUSE]: new Pause(game),
+            [stateNames.LEVEL_COMPLETE]: new LevelComplete(game),
+            [stateNames.GAME_OVER]: new GameOver(game),
         };
-    }
-
-    render(ctx) {
-        ctx.clearRect(0, 0, this.game.width, this.game.height);
-        this.currentState.render(ctx);
+        this.currentState = this.states[stateNames.START_GAME];
     }
 
     start(level = 0) {
-        const {PLAYING, START_GAME} = this.stateNames;
         let data = {};
-        let state = START_GAME;
+        let state = stateNames.START_GAME;
 
         if (level > 0) {
-            data = {level: buildLevel(level, this.game)};
-            state = PLAYING;
+            data = {level: buildLevel(level)};
+            state = stateNames.PLAYING;
         }
 
         this.transition(state, data);
     }
 
-    transition(to, data) {
-        this.currentState = this.states[to];
+    updateState(deltaTime) {
+        return this.currentState.update(deltaTime);
+    }
 
-        resetControls();
-        this.currentState.load(data);
+    renderState(ctx) {
+        ctx.clearRect(0, 0, this.game.width, this.game.height);
+        this.currentState.render(ctx);
+    }
+
+    transition(state, data) {
+        this.currentState = this.states[state];
+
+        resetInputHandlers();
+        this.currentState.load(data, this.transition.bind(this));
     }
 }
