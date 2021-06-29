@@ -20,14 +20,10 @@ export class LevelComplete {
 
         handleInput({
             enter: this.goToNextLevel.bind(this),
-            esc: () => {
-                transition(stateNames.START_GAME, {});
-            },
         });
     }
 
     update(deltaTime) {
-        const {ball, hole} = this.level;
         this.timeElapsed += deltaTime;
 
         if (this.timeElapsed > this.timeout) {
@@ -35,8 +31,7 @@ export class LevelComplete {
         }
 
         if (this.canAdvance) {
-            ball.position.x = hole.position.x + (hole.size - ball.size) / 2;
-            ball.position.y = hole.position.y + (hole.size - ball.size) / 2;
+            this.placeBallInHole();
         }
     }
 
@@ -80,5 +75,12 @@ export class LevelComplete {
         } else {
             this.transition(stateNames.GAME_OVER, {});
         }
+    }
+
+    placeBallInHole() {
+        const {ball, hole} = this.level;
+
+        ball.position.x = hole.position.x + (hole.boundingBox.width - ball.boundingBox.width);
+        ball.position.y = hole.position.y + (hole.boundingBox.height - ball.boundingBox.height);
     }
 }

@@ -29,7 +29,7 @@ export function buildLevel(n) {
                 case "t":
                     level.teePad = new TeePad(x, y);
                     level.ball = new GolfBall(x, y);
-                    level.aimPath = new AimPath(x + 32, y + 32);
+                    level.aimPath = new AimPath(x, y);
                     break;
                 case 1:
                     level.blocks.push(new Block(

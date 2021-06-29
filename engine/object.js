@@ -15,7 +15,7 @@ export class GameObject {
         }
     }
 
-    collideNarrowPhase(object) {
+    collideBroadPhase(object) {
         return aabbAabb(this.boundingBox.absolute(this.position), object.boundingBox.absolute(object.position));
     }
 

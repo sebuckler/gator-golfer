@@ -35,10 +35,7 @@ export class GolfBall extends GameObject {
         this.velocity = velocity;
     }
 
-    project() {
-        let projection = new GolfBall(this.position.x, this.position.y);
-        projection.velocity = this.velocity;
-
-        return projection;
+    stop() {
+        this.velocity = new Vector(0, 0);
     }
 }
